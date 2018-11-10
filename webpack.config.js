@@ -21,7 +21,6 @@ module.exports = {
   entry: {
     example: resolve(__dirname, './example/src/index.js'),
     module: resolve(__dirname, './src/index.js'),
-    vendor: [],
   },
   module: {
     rules: [
@@ -46,7 +45,6 @@ module.exports = {
   },
   output: {
     path: resolve(__dirname, 'example/dist'),
-    publicPath: '/',
     // assigns the hashed name to the file
     filename: `[name]_[chunkhash:${ HASH_LENGTH }].js`,
     // Point sourcemap entries to original disk location (format as URL on Windows)
