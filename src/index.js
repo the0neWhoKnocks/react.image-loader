@@ -101,7 +101,8 @@ class ImageLoader extends Component {
    */
   handleLoadedImage(ev) {
     if( this.mounted ){
-      if( ev.type === 'load' ){
+      // `ev` won't be defined when image is cached
+      if( !ev || ev.type === 'load' ){
         this.setState({
           loaded: true,
         }, () => {
