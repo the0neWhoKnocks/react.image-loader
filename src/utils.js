@@ -21,6 +21,7 @@ const checkIfImageCached = (imgPath) => {
 const loadImage = (imgPath, cb) => {
   const img = new Image();
   img.addEventListener('load', cb);
+  img.addEventListener('error', cb);
   img.src = imgPath;
 };
 

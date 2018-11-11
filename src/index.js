@@ -1,5 +1,5 @@
-import React, { Component, Fragment } from 'react';
-import { arrayOf, bool, func, shape, string } from 'prop-types';
+import React, { Component } from 'react';
+import { arrayOf, func, number, shape, string } from 'prop-types';
 import { checkIfImageCached, loadImage } from './utils';
 import styles from './styles';
 
@@ -19,8 +19,10 @@ class ImageLoader extends Component {
     super();
 
     this.state = {
+      error: false,
       loaded: false,
       revealImage: false,
+      showIndicator: false,
       src: props.src,
     };
   }
@@ -50,11 +52,13 @@ class ImageLoader extends Component {
 
     ( checkIfImageCached(currSrc) )
       ? this.handleLoadedImage()
-      : loadImage(currSrc, this.handleLoadedImage.bind(this));
+      : this.startLoadingImage(currSrc);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
+    if( this.state.error !== nextState.error ) return true;
     if( this.state.src !== nextProps.src ) return true;
+    if( this.state.showIndicator !== nextState.showIndicator ) return true;
     if( this.state.revealImage === nextState.revealImage ) return false;
 
     return true;
@@ -67,81 +71,123 @@ class ImageLoader extends Component {
   /**
    * Ensures that on older browsers like IE11, the default `img` will use the
    * correct image source based on the current media query.
+   *
+   * @param {String} src - Image URL
    */
   updateSourceFromQuery(src) {
     this.setState({ src });
   }
 
   /**
+   * Starts the image load, and ensures the indicator doesn't display unless
+   * the specified delay has run it's course.
+   *
+   * @param {String} imgSrc - Image URL
+   */
+  startLoadingImage(imgSrc) {
+    loadImage(imgSrc, this.handleLoadedImage.bind(this));
+
+    this.indicatorDelay = setTimeout(() => {
+      if( !this.state.loaded ){
+        this.setState({
+          showIndicator: true,
+        });
+      }
+    }, this.props.indicatorDelay);
+  }
+
+  /**
    * Handles the loaded image and sets props that allow for animation.
    */
-  handleLoadedImage() {
+  handleLoadedImage(ev) {
     if( this.mounted ){
-      this.setState({
-        loaded: true,
-      }, () => {
-        /**
-         * We have to wait until the image source has been set before we can
-         * animate it via CSS.
-         */
-        window.requestAnimationFrame(() => {
-          if( this.mounted ){
-            this.setState({
-              revealImage: true,
-            });
-          }
+      if( ev.type === 'load' ){
+        this.setState({
+          loaded: true,
+        }, () => {
+          /**
+          * We have to wait until the image source has been set before we can
+          * animate it via CSS.
+          */
+          window.requestAnimationFrame(() => {
+            if( this.mounted ){
+              this.setState({
+                revealImage: true,
+              });
+            }
+          });
         });
-      });
+      }
+      else{
+        this.setState({
+          error: true,
+        });
+      }
     }
   }
 
   render() {
     const {
+      error,
       loaded,
       revealImage,
+      showIndicator,
     } = this.state;
     const {
       alt,
       className,
-      LoaderOverlay,
+      ErrorOverlay,
+      LoadingIndicator,
       sources,
       src,
     } = this.props;
     const currSrc = (loaded) ? src : tempImg;
-    const imgClass = `${ styles.img }${ (revealImage) ? 'is--loaded' : '' }`;
+    const imgClass = `image-loader__image ${ styles.img }${ (revealImage) ? ' is--loaded' : '' }`;
+    const userClass = (className) ? ` ${ className }` : '';
+    const addIndicator = LoadingIndicator && showIndicator;
+    const addError = ErrorOverlay && error;
 
     return (
-      <Fragment>
-        <div className={className}>
-          {sources && (
-            <picture>
-              {sources.map(({ media, srcSet }) => (
-                <source
-                  key={media}
-                  srcSet={srcSet}
-                  media={media}
-                />
-              ))}
-              <img className={imgClass} src={currSrc} alt={alt} />
-            </picture>
-          )}
-          {!sources && (
-            <img className={imgClass} src={currSrc} alt={alt} />
-          )}
-        </div>
-        {LoaderOverlay && (
-          <LoaderOverlay visible={!loaded} />
+      <div className={`image-loader ${ styles.imgLoader }${ userClass }`}>
+        {addIndicator && (
+          <div className={`image-loader__indicator-wrapper ${ styles.overlayWrapper }`}>
+            <LoadingIndicator />
+          </div>
         )}
-      </Fragment>
+        {addError && (
+          <div className={`image-loader__error-wrapper ${ styles.overlayWrapper }`}>
+            <ErrorOverlay />
+          </div>
+        )}
+        {sources && (
+          <picture>
+            {sources.map(({ media, srcSet }) => (
+              <source
+                key={media}
+                srcSet={srcSet}
+                media={media}
+              />
+            ))}
+            <img className={imgClass} src={currSrc} alt={alt} />
+          </picture>
+        )}
+        {!sources && (
+          <img className={imgClass} src={currSrc} alt={alt} />
+        )}
+      </div>
     );
   }
 }
 
+ImageLoader.defaultProps = {
+  indicatorDelay: 300,
+};
 ImageLoader.propTypes = {
   alt: string,
   className: string,
-  LoaderOverlay: func,
-  showOverlay: bool,
+  ErrorOverlay: func,
+  LoadingIndicator: func,
+  indicatorDelay: number,
   sources: arrayOf(shape({
     media: string,
     srcSet: string,
