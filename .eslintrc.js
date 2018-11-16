@@ -19,8 +19,10 @@ module.exports = {
           // React functions
           'constructor',
           'componentDidMount',
+          'componentDidUpdate',
           'componentWillUnmount',
           'getDerivedStateFromProps',
+          'getSnapshotBeforeUpdate',
           'render',
           'shouldComponentUpdate',
         ],
