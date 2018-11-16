@@ -1,5 +1,12 @@
 import { css } from 'glamor';
 
+const MAX_MOBILE_WIDTH = 1023;
+export const MOBILE_BP = `(max-width: ${ MAX_MOBILE_WIDTH }px)`;
+export const DESKTOP_BP = `(min-width: ${ MAX_MOBILE_WIDTH + 1 }px)`;
+export const BREAKPOINT_MOBILE_HIGH_RES = `${ MOBILE_BP } and (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi)`;
+export const BREAKPOINT_MOBILE_LOW_RES = MOBILE_BP;
+export const BREAKPOINT_DESKTOP_LOW_RES = DESKTOP_BP;
+
 const pulse = css.keyframes({
   '0%': {
     transform: 'translate(-50%, -50%) scale(0.9)',
@@ -41,7 +48,59 @@ const fadeIn = css.keyframes({
 });
 
 export default {
-  imgWrapper: css({
+  row: css({
+    display: 'flex',
+    flexDirection: 'row',
+
+    ' .row__item': {
+      width: '50%',
+
+      ':nth-child(odd)': {
+        marginRight: '0.25em',
+      },
+
+      ':nth-child(even)': {
+        marginLeft: '0.25em',
+      },
+    },
+  }),
+
+  description: css({
+    lineHeight: '1.3em',
+    padding: '0.5em',
+    borderRadius: '0.25em',
+    marginTop: '0.4em',
+    boxShadow: '0 2px 2px 0 #00000050',
+    background: '#fff',
+
+    [`@media${ DESKTOP_BP }`]: {
+      fontSize: '1.5rem',
+
+      '.for--header-image': {
+        [`@media${ DESKTOP_BP }`]: {
+          borderRadius: '0.25em 0.25em 0.5em 0.5em',
+          margin: '0.25em',
+          background: '#ffffffcf',
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+        },
+      },
+    },
+  }),
+
+  exampleWrapper: css({
+    position: 'relative',
+  }),
+
+  imagesWrapper: css({
+    maxWidth: '1050px',
+    margin: '0 auto',
+  }),
+
+  imageWrapper: css({
+    border: 'solid 1px #a0a0a0',
+    borderRadius: '1em',
     marginTop: '0.5em',
     overflow: 'hidden',
     position: 'relative',

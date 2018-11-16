@@ -15,6 +15,11 @@ const stats = {
 
 module.exports = {
   devServer: {
+    clientLogLevel: 'none', // kill client socket logs
+    compress: true, // gzips responses
+    headers: {
+      'Cache-Control': 'max-age=60000', // allow for images to be cached to truly validate caching and loading
+    },
     port: 3001,
     stats: stats,
   },

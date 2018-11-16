@@ -10,9 +10,18 @@ const tempImg = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAA
  */
 class ImageLoader extends Component {
   static getDerivedStateFromProps(props, state) {
-    if( state.src !== props.src ) return { src: props.src };
+    const newState = {};
 
-    return null;
+    if( JSON.stringify(state.sources) !== JSON.stringify(props.sources) )
+      newState.sources = props.sources;
+    if( state.src !== props.src )
+      newState.src = props.src;
+    if( newState.src || newState.sources ){
+      newState.loaded = false;
+      newState.revealImage = false;
+    }
+
+    return (Object.keys(newState).length) ? newState : null;
   }
 
   constructor(props) {
@@ -23,16 +32,50 @@ class ImageLoader extends Component {
       loaded: false,
       revealImage: false,
       showIndicator: false,
+      sources: props.sources,
       src: props.src,
     };
   }
 
   componentDidMount() {
+    this.mounted = true;
+    this.loadSources();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if(
+      JSON.stringify(this.state.sources) !== JSON.stringify(prevState.sources)
+      || this.state.src !== prevState.src
+    ) {
+      this.loadSources();
+    }
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if(
+      this.state.error !== nextState.error
+      || this.state.loaded !== nextState.loaded
+      || this.state.src !== nextProps.src
+      || this.state.showIndicator !== nextState.showIndicator
+    ) return true;
+    if( this.state.revealImage === nextState.revealImage ) return false;
+
+    return true;
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  /**
+   * Handles whether or not to start loading an image, or display the cached
+   * version of the image.
+   */
+  loadSources() {
     const {
       sources,
       src,
-    } = this.props;
-    this.mounted = true;
+    } = this.state;
     let currSrc = src;
 
     // For `picture` elements find the currently matched source, and check if
@@ -53,19 +96,6 @@ class ImageLoader extends Component {
     ( checkIfImageCached(currSrc) )
       ? this.handleLoadedImage()
       : this.startLoadingImage(currSrc);
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    if( this.state.error !== nextState.error ) return true;
-    if( this.state.src !== nextProps.src ) return true;
-    if( this.state.showIndicator !== nextState.showIndicator ) return true;
-    if( this.state.revealImage === nextState.revealImage ) return false;
-
-    return true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
   }
 
   /**
