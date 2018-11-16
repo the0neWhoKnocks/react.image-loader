@@ -1,8 +1,13 @@
 # directories
-./src
-./example
+.assets
+example
+src
 
 # files
+*.log
 .babelrc
+.eslintrc.js
 .gitignore
+TODO.md
 webpack.config.js
+yarn.lock

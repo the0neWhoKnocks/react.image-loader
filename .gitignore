@@ -1,6 +1,8 @@
 # directories
 .assets
+cjs
 dist
+esm
 example/src/imgs
 node_modules
 

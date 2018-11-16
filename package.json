@@ -2,15 +2,18 @@
   "name": "@noxx/react-image-loader",
   "version": "1.0.0",
   "description": "A React component that preloads images via img or picture tags",
-  "main": "index.js",
+  "main": "cjs/index.js",
+  "module": "esm/index.js",
   "scripts": {
-    "build": "webpack --mode production",
+    "build": "BABEL_ENV=\"cjs\" webpack --mode production",
     "deploy": "gh-pages -d ./example/dist",
     "lint": "eslint ./**/*.js",
     "prepublishOnly": "npm run transpile && npm run build && npm run deploy",
-    "start": "webpack-dev-server --mode development",
+    "start": "BABEL_ENV=\"cjs\" webpack-dev-server --mode development",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "transpile": "babel ./src -d dist --copy-files"
+    "transpile": "npm run transpile:cjs && npm run transpile:esm",
+    "transpile:cjs": "cross-env BABEL_ENV=\"cjs\" babel ./src -d cjs --copy-files",
+    "transpile:esm": "cross-env BABEL_ENV=\"esm\" babel ./src -d esm --copy-files"
   },
   "repository": {
     "type": "git",
