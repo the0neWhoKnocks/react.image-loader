@@ -4,12 +4,59 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <style>
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-5px);
+      }
+    }
+
     *, *::before, *::after {
       box-sizing: border-box;
     }
     body {
       font-family: Helvetica, Arial, sans-serif;
-      background: #000;
+      background: #ddd;
+    }
+    noscript {
+      font-size: 1.2em;
+      font-weight: bold;
+      text-align: center;
+      padding: 1em;
+      background: #ff4800;
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      transform: translateY(-50%);
+      z-index: 10;
+    }
+    code {
+      padding: 0.1em 0.5em;
+      border-radius: 0.25em;
+      margin-bottom: -1px;
+      background: #00000020;
+      display: inline-block;
+      vertical-align: text-bottom;
+    }
+    .loading-msg {
+      text-align: center;
+      padding: 0.5em 0.75em 0.5em 0.75em;
+      border-radius: 1em;
+      background: #fff;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .loading-msg__icon {
+      width: 1.5em;
+      height: 1.5em;
+      display: inline-block;
+      vertical-align: middle;
+      animation: bounce 0.5s infinite alternate;
     }
   </style>
 </head>
@@ -28,8 +75,18 @@
     </svg>
   </svg>
   <noscript>
-    You need to enable JavaScript to run this app.
+    You need to enable JavaScript to view this example.
   </noscript>
-  <div id="root"></div>
-<script type="text/javascript" src="vendor_c4419.js"></script><script type="text/javascript" src="example_4d7ad.js"></script><script type="text/javascript" src="module_f5817.js"></script></body>
+  <div id="root">
+    <div class="loading-msg">
+      <svg class="loading-msg__icon">
+        <use
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xlink:href="#dog-icon"
+        />
+      </svg>
+      Loading Example
+    </div>
+  </div>
+<script type="text/javascript" src="vendor_c4419.js"></script><script type="text/javascript" src="example_75458.js"></script><script type="text/javascript" src="module_a48be.js"></script></body>
 </html>
