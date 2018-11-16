@@ -10,7 +10,7 @@ You can view the [demo in action here](https://the0newhoknocks.github.io/react.i
 
 ```sh
 yarn add @noxx/react-image-loader
-# OR
+# or
 npm i @noxx/react-image-loader
 ```
 
@@ -25,9 +25,13 @@ Refer to the [example file](example/src/index.js) for up-to-date usage examples.
 ## Development
 
 ```sh
+# Install all deps
 yarn
-yarn start
-# OR
+# or
 npm i
+
+# Start dev server
+yarn start
+# or
 npm start
 ```
