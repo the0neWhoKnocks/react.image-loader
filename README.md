@@ -1,5 +1,9 @@
 # React Image Loader
 
+[![Build Status](https://travis-ci.org/the0neWhoKnocks/react.image-loader.svg?branch=master)](https://travis-ci.org/the0neWhoKnocks/react.image-loader)
+[![codecov](https://codecov.io/gh/the0neWhoKnocks/react.image-loader/branch/master/graph/badge.svg)](https://codecov.io/gh/the0neWhoKnocks/react.image-loader)
+[![npm version](https://badge.fury.io/js/%40noxx%2Freact.image-loader.svg?cb=1)](https://badge.fury.io/js/%40noxx%2Freact.image-loader)
+
 A React component that preloads images via `img` or `picture` tags.
 
 You can view the [demo in action here](https://the0newhoknocks.github.io/react.image-loader/).

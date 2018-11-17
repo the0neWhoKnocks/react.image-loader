@@ -1,5 +1,6 @@
 # directories
 .assets
+.coverage
 cjs
 dist
 esm
