@@ -1,5 +1,7 @@
 # directories
 .assets
+.coverage
+.jest
 example
 src
 
