@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { arrayOf, func, number, shape, string } from 'prop-types';
 import { checkIfImageCached, loadImage } from './utils';
 import styles from './styles';
@@ -30,6 +30,7 @@ class ImageLoader extends Component {
     this.state = {
       error: false,
       loaded: false,
+      mounted: false,
       revealImage: false,
       showIndicator: false,
       sources: props.sources,
@@ -40,6 +41,7 @@ class ImageLoader extends Component {
   componentDidMount() {
     this.mounted = true;
     this.loadSources();
+    this.setMountState();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -65,6 +67,15 @@ class ImageLoader extends Component {
 
   componentWillUnmount() {
     this.mounted = false;
+  }
+  
+  /**
+   * Tracks the `mounted` state, so that `noscript` tags can be styled.
+   */
+  setMountState() {
+    this.setState({
+      mounted: this.mounted,
+    });
   }
 
   /**
@@ -156,11 +167,74 @@ class ImageLoader extends Component {
       }
     }
   }
+  
+  /**
+   * Renders a `noscript`, and lazy loadable version of an `img` element.
+   * 
+   * @param {Object} props - The props needed to render the element.
+   * @return {Function}
+   */
+  renderImg({
+    alt,
+    imgClass,
+    noscriptImgClass,
+    noscriptSrc,
+    src,
+  }) {
+    /* eslint-disable-next-line */
+    const img = (className, src) => (
+      <img className={className} src={src} alt={alt} />
+    );
+    
+    return (
+      <Fragment>
+        <noscript>{img(noscriptImgClass, noscriptSrc)}</noscript>
+        {img(imgClass, src)}
+      </Fragment>
+    );
+  }
+  
+  /**
+   * Renders a `noscript`, and lazy loadable version of a `picture` element.
+   * 
+   * @param {Object} props - The props needed to render the element.
+   * @return {Function}
+   */
+  renderPicture({
+    alt,
+    imgClass,
+    noscriptImgClass,
+    noscriptSrc,
+    sources,
+    src,
+  }) {
+    /* eslint-disable-next-line */
+    const pic = (className, src) => (
+      <picture>
+        {sources.map(({ media, srcSet }) => (
+          <source
+            key={media}
+            srcSet={srcSet}
+            media={media}
+          />
+        ))}
+        <img className={className} src={src} alt={alt} />
+      </picture>
+    );
+    
+    return (
+      <Fragment>
+        <noscript>{pic(noscriptImgClass, noscriptSrc)}</noscript>
+        {pic(imgClass, src)}
+      </Fragment>
+    );
+  }
 
   render() {
     const {
       error,
       loaded,
+      mounted,
       revealImage,
       showIndicator,
     } = this.state;
@@ -173,13 +247,16 @@ class ImageLoader extends Component {
       src,
     } = this.props;
     const currSrc = (loaded) ? src : tempImg;
-    const imgClass = `image-loader__image ${ styles.img }${ (revealImage) ? ' is--loaded' : '' }`;
+    const baseImgClass = `image-loader__image ${ styles.img }`;
+    const imgClass = `${ baseImgClass }${ (revealImage) ? ' is--loaded' : '' }`;
+    const noscriptImgClass = `${ baseImgClass } is--loaded`;
     const userClass = (className) ? ` ${ className }` : '';
     const addIndicator = LoadingIndicator && showIndicator;
     const addError = ErrorOverlay && error;
+    const loaderModifier = (mounted) ? 'is--mounted' : '';
 
     return (
-      <div className={`image-loader ${ styles.imgLoader }${ userClass }`}>
+      <div className={`image-loader ${ styles.imgLoader }${ userClass } ${ loaderModifier }`}>
         {addIndicator && (
           <div className={`image-loader__indicator-wrapper ${ styles.overlayWrapper }`}>
             <LoadingIndicator />
@@ -190,21 +267,20 @@ class ImageLoader extends Component {
             <ErrorOverlay />
           </div>
         )}
-        {sources && (
-          <picture>
-            {sources.map(({ media, srcSet }) => (
-              <source
-                key={media}
-                srcSet={srcSet}
-                media={media}
-              />
-            ))}
-            <img className={imgClass} src={currSrc} alt={alt} />
-          </picture>
-        )}
-        {!sources && (
-          <img className={imgClass} src={currSrc} alt={alt} />
-        )}
+        {sources && this.renderPicture({
+          alt,
+          imgClass,
+          noscriptImgClass,
+          sources,
+          src: currSrc,
+        })}
+        {!sources && this.renderImg({
+          alt,
+          imgClass,
+          noscriptImgClass,
+          noscriptSrc: src,
+          src: currSrc,
+        })}
       </div>
     );
   }
