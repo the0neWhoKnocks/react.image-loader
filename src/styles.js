@@ -3,6 +3,13 @@ import { css } from 'glamor';
 const styles = {
   imgLoader: css({
     position: 'relative',
+    
+    ':not(.is--mounted)': {
+      
+      ' noscript + img, noscript + picture': {
+        display: 'none',
+      },
+    },
   }),
 
   img: css({

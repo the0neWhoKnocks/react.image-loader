@@ -51,19 +51,19 @@ describe('ImageLoader', () => {
     );
     jest.runAllTimers();
     wrapper.update();
-    img = wrapper.find('img').instance();
-
+    img = wrapper.find('noscript + img').instance();
+    
     expect(loadImage).toHaveBeenCalledWith(imgURL, expect.any(Function));
     expect(img.src).toEqual(tempImg);
     expect(img.alt).toEqual(altText);
     expect(wrapper.find('LoadingIndicator').length).toBe(1);
-
+    
     // loading has completed
     loadImageCB();
     rafCB();
     wrapper.update();
-    img = wrapper.find('img').instance();
-
+    img = wrapper.find('noscript + img').instance();
+    
     expect(img.src).toEqual(imgURL);
   });
 
@@ -79,7 +79,7 @@ describe('ImageLoader', () => {
     );
     jest.runAllTimers();
     wrapper.update();
-    img = wrapper.find('img').instance();
+    img = wrapper.find('noscript + img').instance();
     rafCB();
     wrapper.update();
 
@@ -107,7 +107,7 @@ describe('ImageLoader', () => {
 
     expect(instance.state.loaded).toBe(true);
     expect(instance.state.revealImage).toBe(false);
-    expect(wrapper.find('img').props().className).toContain(`${ styles.img }`);
+    expect(wrapper.find('noscript + img').props().className).toContain(`${ styles.img }`);
 
     // shouldn't call setState if not mounted
     instance.mounted = false;
@@ -120,7 +120,7 @@ describe('ImageLoader', () => {
     rafCB();
     wrapper.update();
     expect(instance.state.revealImage).toBe(true);
-    expect(wrapper.find('img').props().className).toContain(`${ styles.img } is--loaded`);
+    expect(wrapper.find('noscript + img').props().className).toContain(`${ styles.img } is--loaded`);
   });
 
   it('should handle source updates', () => {
@@ -137,14 +137,14 @@ describe('ImageLoader', () => {
     );
     rafCB();
     wrapper.update();
-    expect(wrapper.find('img').props().src).toEqual(imgURL);
+    expect(wrapper.find('noscript + picture img').props().src).toEqual(imgURL);
 
     const newURL = 'http://fake.com/new/url.jpg';
     wrapper.setProps({
       src: newURL,
     });
     wrapper.update();
-    expect(wrapper.find('img').props().src).toEqual(newURL);
+    expect(wrapper.find('noscript + picture img').props().src).toEqual(newURL);
 
     const newSources = [{
       media: '()',
@@ -154,7 +154,7 @@ describe('ImageLoader', () => {
       sources: newSources,
     });
     wrapper.update();
-    const sources = wrapper.find('picture source');
+    const sources = wrapper.find('noscript + picture source');
     expect(sources.length).toBe(1);
     expect(sources.get(0).props.srcSet).toEqual(newSources[0].srcSet);
   });
@@ -179,7 +179,7 @@ describe('ImageLoader', () => {
     loadImageCB();
     rafCB();
     wrapper.update();
-    const pic = wrapper.find('picture');
+    const pic = wrapper.find('noscript + picture');
     const picSources = pic.find('source');
 
     expect(loadImage).toHaveBeenCalledWith(sources[1].srcSet, expect.any(Function));
