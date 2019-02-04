@@ -1,9 +1,17 @@
 import React, { Component, Fragment } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { arrayOf, func, number, shape, string } from 'prop-types';
 import { checkIfImageCached, loadImage } from './utils';
 import styles from './styles';
 
 const tempImg = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
+/* eslint-disable-next-line */
+const NoScript = ({ children }) => (
+  <noscript dangerouslySetInnerHTML={{
+    __html: renderToStaticMarkup(children),
+  }} />
+);
 
 /**
  * A Component that preloads `img` or `picture` tags.
@@ -26,7 +34,7 @@ class ImageLoader extends Component {
 
   constructor(props) {
     super();
-
+    
     this.state = {
       error: false,
       loaded: false,
@@ -41,7 +49,6 @@ class ImageLoader extends Component {
   componentDidMount() {
     this.mounted = true;
     this.loadSources();
-    this.setMountState();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -67,15 +74,6 @@ class ImageLoader extends Component {
 
   componentWillUnmount() {
     this.mounted = false;
-  }
-  
-  /**
-   * Tracks the `mounted` state, so that `noscript` tags can be styled.
-   */
-  setMountState() {
-    this.setState({
-      mounted: this.mounted,
-    });
   }
 
   /**
@@ -188,7 +186,7 @@ class ImageLoader extends Component {
     
     return (
       <Fragment>
-        <noscript>{img(noscriptImgClass, noscriptSrc)}</noscript>
+        <NoScript>{img(noscriptImgClass, noscriptSrc)}</NoScript>
         {img(imgClass, src)}
       </Fragment>
     );
@@ -224,7 +222,7 @@ class ImageLoader extends Component {
     
     return (
       <Fragment>
-        <noscript>{pic(noscriptImgClass, noscriptSrc)}</noscript>
+        <NoScript>{pic(noscriptImgClass, noscriptSrc)}</NoScript>
         {pic(imgClass, src)}
       </Fragment>
     );
@@ -234,7 +232,6 @@ class ImageLoader extends Component {
     const {
       error,
       loaded,
-      mounted,
       revealImage,
       showIndicator,
     } = this.state;
@@ -253,10 +250,9 @@ class ImageLoader extends Component {
     const userClass = (className) ? ` ${ className }` : '';
     const addIndicator = LoadingIndicator && showIndicator;
     const addError = ErrorOverlay && error;
-    const loaderModifier = (mounted) ? 'is--mounted' : '';
 
     return (
-      <div className={`image-loader ${ styles.imgLoader }${ userClass } ${ loaderModifier }`}>
+      <div className={`image-loader ${ styles.imgLoader }${ userClass }`}>
         {addIndicator && (
           <div className={`image-loader__indicator-wrapper ${ styles.overlayWrapper }`}>
             <LoadingIndicator />

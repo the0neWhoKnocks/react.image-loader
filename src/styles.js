@@ -4,11 +4,10 @@ const styles = {
   imgLoader: css({
     position: 'relative',
     
-    ':not(.is--mounted)': {
-      
-      ' noscript + img, noscript + picture': {
-        display: 'none',
-      },
+    ' noscript img, noscript picture': {
+      position: 'absolute',
+      top: 0,
+      left: 0,
     },
   }),
 
