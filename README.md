@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/the0neWhoKnocks/react.image-loader.svg?branch=master)](https://travis-ci.org/the0neWhoKnocks/react.image-loader)
 [![codecov](https://codecov.io/gh/the0neWhoKnocks/react.image-loader/branch/master/graph/badge.svg)](https://codecov.io/gh/the0neWhoKnocks/react.image-loader)
 [![npm version](https://badge.fury.io/js/%40noxx%2Freact-image-loader.svg?cb=1)](https://badge.fury.io/js/%40noxx%2Freact-image-loader)
+<img alt="undefined" src="https://img.shields.io/bundlephobia/minzip/@noxx/react-image-loader.svg?colorB=yellowgreen&label=Minified%20%2B%20gZip&logo=node.js&logoColor=yellowgreen&style=flat">
 
 A React component that preloads images via `img` or `picture` tags.
 
