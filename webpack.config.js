@@ -27,6 +27,10 @@ module.exports = {
     example: resolve(__dirname, './example/src/index.js'),
     module: resolve(__dirname, './src/index.js'),
   },
+  externals: {
+    'react': 'React',
+    'react-dom': 'ReactDOM',
+  },
   module: {
     rules: [
       {
