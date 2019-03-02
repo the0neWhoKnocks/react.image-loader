@@ -20,22 +20,47 @@ const NoScript = ({ children }) => (
  * A Component that preloads `img` or `picture` tags.
  */
 class ImageLoader extends Component {
-  static getDerivedStateFromProps(props, state) {
-    const newState = {};
-
-    if( JSON.stringify(state.sources) !== JSON.stringify(props.sources) )
-      newState.sources = props.sources;
-    if( state.src !== props.src )
-      newState.src = props.src;
-    if( newState.src || newState.sources ){
-      newState.loaded = false;
-      newState.revealImage = false;
-    }
-
-    return (Object.keys(newState).length) ? newState : null;
+  /**
+   * If Chrome detects a `source` it'll now try to pre-load it, causing
+   * the proxy `tempImg` not to be used which then collapses the image
+   * container. Supplying a temorary Array of empty sources allows us to get
+   * around that.
+   *
+   * @param {Array} sources - Current picture sources
+   * @return {Array}
+   */
+  static buildEmptySources(sources) {
+    return sources.map((v, ndx) => ({ media: ndx, srcSet: '' }));
   }
+  
+  /**
+   * For `picture` elements find the currently matched source, and check if
+   * that's been loaded instead. Further loads (after a resize), will be
+   * handled by the Browser.
+   *
+   * @param {Array} src - Current img source
+   * @param {Array} sources - Current picture sources
+   * @return {String}
+   */
+  static getMatchedSource(src, sources) {
+    let matchedSource = src;
+    
+    for(let i=0; i<sources.length; i++){
+      const source = sources[i];
 
-  constructor(props) {
+      if( window.matchMedia(source.media).matches ){
+        matchedSource = source.srcSet;
+        break;
+      }
+    }
+    
+    return matchedSource;
+  }
+  
+  constructor({
+    sources,
+    src,
+  }) {
     super();
     
     this.state = {
@@ -44,23 +69,41 @@ class ImageLoader extends Component {
       mounted: false,
       revealImage: false,
       showIndicator: false,
-      sources: props.sources,
-      src: props.src,
+      src: src,
     };
+    
+    this.emptySources = ImageLoader.buildEmptySources(sources);
   }
 
   componentDidMount() {
     this.mounted = true;
-    this.loadSources();
+    
+    this.updateState({
+      src: ImageLoader.getMatchedSource(this.state.src, this.props.sources),
+    }, this.loadSources);
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if(
-      JSON.stringify(this.state.sources) !== JSON.stringify(prevState.sources)
-      || this.state.src !== prevState.src
-    ) {
-      this.loadSources();
+    // If new sources were passed in, those take priority
+    const { sources: currentSources, src: currentSrc } = this.props;
+    const prevSrc = prevProps.src;
+    const prevSources = prevProps.sources;
+    const propSourcesMatch = JSON.stringify(prevSources) === JSON.stringify(currentSources);
+    const currState = {};
+    
+    if( prevSrc !== currentSrc ) currState.src = currentSrc;
+    if( !propSourcesMatch ){
+      currState.sources = currentSources;
+      this.emptySources = ImageLoader.buildEmptySources(currentSources);
+      currState.src = ImageLoader.getMatchedSource(currentSrc, currentSources);
     }
+    if( currState.src || currState.sources ){
+      currState.loaded = false;
+      currState.revealImage = false;
+    }
+    
+    if(Object.keys(currState).length)
+      this.updateState(currState, this.loadSources);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -85,39 +128,23 @@ class ImageLoader extends Component {
    */
   loadSources() {
     const {
-      sources,
       src,
     } = this.state;
-    let currSrc = src;
 
-    // For `picture` elements find the currently matched source, and check if
-    // that's been loaded instead. Further loads (after a resize), will be
-    // handled by the Browser.
-    if( sources ){
-      for(let i=0; i<sources.length; i++){
-        const source = sources[i];
-
-        if( window.matchMedia(source.media).matches ){
-          currSrc = source.srcSet;
-          this.updateSourceFromQuery(currSrc);
-          break;
-        }
-      }
-    }
-
-    ( checkIfImageCached(currSrc) )
+    ( checkIfImageCached(src) )
       ? this.handleLoadedImage()
-      : this.startLoadingImage(currSrc);
+      : this.startLoadingImage(src);
   }
 
   /**
    * Ensures that on older browsers like IE11, the default `img` will use the
    * correct image source based on the current media query.
    *
-   * @param {String} src - Image URL
+   * @param {Object} state - New state
+   * @param {Function} cb - Callback after state has updated
    */
-  updateSourceFromQuery(src) {
-    this.setState({ src });
+  updateState(state, cb) {
+    this.setState(state, cb);
   }
 
   /**
@@ -243,7 +270,7 @@ class ImageLoader extends Component {
       className,
       ErrorOverlay,
       LoadingIndicator,
-      sources,
+      sources: actualSources,
       src,
     } = this.props;
     const currSrc = (loaded) ? src : tempImg;
@@ -252,15 +279,19 @@ class ImageLoader extends Component {
     const noscriptImgClass = `${ baseImgClass } ${ MODIFIER__LOADED }`;
     const addIndicator = LoadingIndicator && showIndicator;
     const addError = ErrorOverlay && error;
-    let rootModifier = '';
-    if(revealImage) rootModifier = MODIFIER__LOADED;
-    
     const sharedOpts = {
       alt,
       imgClass,
       noscriptImgClass,
       src: currSrc,
     };
+    let rootModifier = '';
+    let sources = this.emptySources;
+    
+    if(revealImage) rootModifier = MODIFIER__LOADED;
+    // NOTE - Once the image has loaded, we can swap out the proxy sources with
+    // the real ones to support responsive behavior.
+    if(loaded) sources = actualSources;
     
     return (
       <div className={`${ ROOT_CLASS } ${ styles } ${ className } ${ rootModifier }`}>
