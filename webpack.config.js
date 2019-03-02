@@ -3,6 +3,8 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const SimpleProgressWebpackPlugin = require('simple-progress-webpack-plugin');
+const TidyPlugin = require('@noxx/webpack-tidy-plugin');
+const WebpackAssetsManifest = require('webpack-assets-manifest');
 
 const HASH_LENGTH = 5;
 const stats = {
@@ -14,15 +16,6 @@ const stats = {
 };
 
 module.exports = {
-  devServer: {
-    clientLogLevel: 'none', // kill client socket logs
-    compress: true, // gzips responses
-    headers: {
-      'Cache-Control': 'max-age=60000', // allow for images to be cached to truly validate caching and loading
-    },
-    port: 3001,
-    stats: stats,
-  },
   entry: {
     example: resolve(__dirname, './example/src/index.js'),
     module: resolve(__dirname, './src/index.js'),
@@ -61,6 +54,10 @@ module.exports = {
     devtoolModuleFilenameTemplate: info => resolve(info.absoluteResourcePath).replace(/\\/g, '/'),
   },
   plugins: [
+    new TidyPlugin({
+      cleanOutput: true,
+      hashLength: HASH_LENGTH,
+    }),
     /**
      * Gives more control of how bundles are hashed
      */
@@ -80,7 +77,16 @@ module.exports = {
      */
     new HtmlWebpackPlugin({
       filename: 'index.html',
-      template: resolve(__dirname, './example/src/index.html'),
+      template: resolve(__dirname, './example/src/template.js'),
+    }),
+    /**
+     * Generate a manifest file which contains a mapping of all asset filenames
+     * to their corresponding output file so that tools can load them without
+     * having to know the hashed name.
+     */
+    new WebpackAssetsManifest({
+      sortManifest: false,
+      writeToDisk: true,
     }),
     /**
      * Provides build progress in the CLI

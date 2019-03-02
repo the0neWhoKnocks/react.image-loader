@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { arrayOf, func, number, shape, string } from 'prop-types';
 import { checkIfImageCached, loadImage } from './utils';
 import styles, {
+  MODIFIER__ERROR,
   MODIFIER__LOADED,
   ROOT_CLASS,
 } from './styles';
@@ -232,12 +233,13 @@ class ImageLoader extends Component {
     alt,
     imgClass,
     noscriptImgClass,
+    noscriptSources,
     noscriptSrc,
     sources,
     src,
   }) {
     /* eslint-disable-next-line */
-    const pic = (className, src) => (
+    const pic = (className, src, sources) => (
       <picture>
         {sources.map(({ media, srcSet }) => (
           <source
@@ -252,8 +254,8 @@ class ImageLoader extends Component {
     
     return (
       <Fragment>
-        <NoScript>{pic(noscriptImgClass, noscriptSrc)}</NoScript>
-        {pic(imgClass, src)}
+        <NoScript>{pic(noscriptImgClass, noscriptSrc, noscriptSources)}</NoScript>
+        {pic(imgClass, src, sources)}
       </Fragment>
     );
   }
@@ -283,12 +285,14 @@ class ImageLoader extends Component {
       alt,
       imgClass,
       noscriptImgClass,
+      noscriptSrc: src,
       src: currSrc,
     };
     let rootModifier = '';
     let sources = this.emptySources;
     
     if(revealImage) rootModifier = MODIFIER__LOADED;
+    if(error) rootModifier += ` ${ MODIFIER__ERROR }`;
     // NOTE - Once the image has loaded, we can swap out the proxy sources with
     // the real ones to support responsive behavior.
     if(loaded) sources = actualSources;
@@ -307,11 +311,11 @@ class ImageLoader extends Component {
         )}
         {!!sources.length && this.renderPicture({
           ...sharedOpts,
+          noscriptSources: actualSources,
           sources,
         })}
         {!sources.length && this.renderImg({
           ...sharedOpts,
-          noscriptSrc: src,
         })}
       </div>
     );
