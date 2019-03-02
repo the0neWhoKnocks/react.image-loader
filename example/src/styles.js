@@ -124,18 +124,19 @@ export default {
       }
     }
 
-    > .image-loader {
+    .image-loader {
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
-    }
-  `,
-
-  imgLoader: css`
-    img {
-      width: 100%;
+      
+      &.has--error {
+        
+        .overlay__icon {
+          fill: #b50d00;
+        }
+      }
     }
   `,
   
@@ -173,6 +174,7 @@ export default {
       }
 
       .overlay__icon {
+        
         fill: #b50d00;
         animation: ${ tiltHead } 6s infinite;
       }

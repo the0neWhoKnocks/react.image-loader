@@ -1,17 +1,13 @@
 import { css } from 'emotion';
 
+export const MODIFIER__ERROR = 'has--error';
 export const MODIFIER__LOADED = 'is--loaded';
 export const ROOT_CLASS = 'image-loader';
 
 export default css`
   position: relative;
 
-  noscript img,
-  noscript picture {
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
+  
   
   .${ ROOT_CLASS } {
     
