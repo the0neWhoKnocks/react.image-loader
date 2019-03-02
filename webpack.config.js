@@ -28,6 +28,7 @@ module.exports = {
     module: resolve(__dirname, './src/index.js'),
   },
   externals: {
+    'prop-types': 'PropTypes',
     'react': 'React',
     'react-dom': 'ReactDOM',
   },

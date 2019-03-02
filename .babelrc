@@ -1,4 +1,8 @@
 {
+  plugins: [
+    'transform-object-rest-spread',
+  ],
+  
   // Settings used for building npm distributable module
   // https://babeljs.io/docs/en/6.26.3/babel-preset-env
   env: {

@@ -4,6 +4,7 @@ module.exports = {
 		'require-jsdoc-except',
 	],
   rules: {
+    'object-property-newline': 'off',
     'require-jsdoc': 'off',
 		'require-jsdoc-except/require-jsdoc': [ // replaces the default 'require-jsdoc'
       'error',
