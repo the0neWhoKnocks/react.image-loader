@@ -2,7 +2,10 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { checkIfImageCached, loadImage } from './utils';
 import ImageLoader, { tempImg } from './index';
-import styles from './styles';
+import {
+  MODIFIER__LOADED,
+  ROOT_CLASS,
+} from './styles';
 
 jest.mock('./utils', () => jest.genMockFromModule('./utils'));
 
@@ -34,7 +37,7 @@ describe('ImageLoader', () => {
 
     wrapper = mount(<ImageLoader className={className} src={imgURL} alt={altText} />);
 
-    expect(wrapper.childAt(0).props().className).toContain(className);
+    expect(wrapper.find(`.${ ROOT_CLASS }`).props().className).toContain(className);
   });
 
   it('should load an image if not cached', () => {
@@ -107,7 +110,6 @@ describe('ImageLoader', () => {
 
     expect(instance.state.loaded).toBe(true);
     expect(instance.state.revealImage).toBe(false);
-    expect(wrapper.find('NoScript + img').props().className).toContain(`${ styles.img }`);
 
     // shouldn't call setState if not mounted
     instance.mounted = false;
@@ -120,7 +122,7 @@ describe('ImageLoader', () => {
     rafCB();
     wrapper.update();
     expect(instance.state.revealImage).toBe(true);
-    expect(wrapper.find('NoScript + img').props().className).toContain(`${ styles.img } is--loaded`);
+    expect(wrapper.find('NoScript + img').props().className).toContain(`${ MODIFIER__LOADED }`);
   });
 
   it('should handle source updates', () => {
@@ -152,6 +154,7 @@ describe('ImageLoader', () => {
     }];
     wrapper.setProps({
       sources: newSources,
+      src: 'http://fake.com/new/big-default-image.jpg',
     });
     wrapper.update();
     const sources = wrapper.find('NoScript + picture source');
