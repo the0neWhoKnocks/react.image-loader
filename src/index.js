@@ -2,7 +2,10 @@ import React, { Component, Fragment } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { arrayOf, func, number, shape, string } from 'prop-types';
 import { checkIfImageCached, loadImage } from './utils';
-import styles from './styles';
+import styles, {
+  MODIFIER__LOADED,
+  ROOT_CLASS,
+} from './styles';
 
 const tempImg = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
@@ -244,38 +247,40 @@ class ImageLoader extends Component {
       src,
     } = this.props;
     const currSrc = (loaded) ? src : tempImg;
-    const baseImgClass = `image-loader__image ${ styles.img }`;
-    const imgClass = `${ baseImgClass }${ (revealImage) ? ' is--loaded' : '' }`;
-    const noscriptImgClass = `${ baseImgClass } is--loaded`;
-    const userClass = (className) ? ` ${ className }` : '';
+    const baseImgClass = `${ ROOT_CLASS }__image`;
+    const imgClass = `${ baseImgClass }${ (revealImage) ? ` ${ MODIFIER__LOADED }` : '' }`;
+    const noscriptImgClass = `${ baseImgClass } ${ MODIFIER__LOADED }`;
     const addIndicator = LoadingIndicator && showIndicator;
     const addError = ErrorOverlay && error;
-
+    let rootModifier = '';
+    if(revealImage) rootModifier = MODIFIER__LOADED;
+    
+    const sharedOpts = {
+      alt,
+      imgClass,
+      noscriptImgClass,
+      src: currSrc,
+    };
+    
     return (
-      <div className={`image-loader ${ styles.imgLoader }${ userClass }`}>
+      <div className={`${ ROOT_CLASS } ${ styles } ${ className } ${ rootModifier }`}>
         {addIndicator && (
-          <div className={`image-loader__indicator-wrapper ${ styles.overlayWrapper }`}>
+          <div className={`${ ROOT_CLASS }__indicator-wrapper`}>
             <LoadingIndicator />
           </div>
         )}
         {addError && (
-          <div className={`image-loader__error-wrapper ${ styles.overlayWrapper }`}>
+          <div className={`${ ROOT_CLASS }__error-wrapper`}>
             <ErrorOverlay />
           </div>
         )}
-        {sources && this.renderPicture({
-          alt,
-          imgClass,
-          noscriptImgClass,
+        {!!sources.length && this.renderPicture({
+          ...sharedOpts,
           sources,
-          src: currSrc,
         })}
-        {!sources && this.renderImg({
-          alt,
-          imgClass,
-          noscriptImgClass,
+        {!sources.length && this.renderImg({
+          ...sharedOpts,
           noscriptSrc: src,
-          src: currSrc,
         })}
       </div>
     );
@@ -283,7 +288,9 @@ class ImageLoader extends Component {
 }
 
 ImageLoader.defaultProps = {
+  className: '',
   indicatorDelay: 300,
+  sources: [],
 };
 ImageLoader.propTypes = {
   alt: string,

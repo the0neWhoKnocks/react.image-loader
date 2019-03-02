@@ -1,36 +1,50 @@
-import { css } from 'glamor';
+import { css } from 'emotion';
 
-const styles = {
-  imgLoader: css({
-    position: 'relative',
+export const MODIFIER__LOADED = 'is--loaded';
+export const ROOT_CLASS = 'image-loader';
+
+export default css`
+  position: relative;
+
+  noscript img,
+  noscript picture {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+  
+  .${ ROOT_CLASS } {
     
-    ' noscript img, noscript picture': {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-    },
-  }),
+    &__image {
+      width: 100%;
+      display: block;
+      opacity: 0;
+      transition: opacity 0.5s;
+      position: relative;
 
-  img: css({
-    width: '100%',
-    display: 'block',
-    opacity: 0,
-    transition: 'opacity 0.5s',
-    position: 'relative',
-
-    '.is--loaded': {
-      opacity: 1,
-    },
-  }),
-
-  overlayWrapper: css({
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    bottom: 0,
-    right: 0,
-    pointerEvents: 'none',
-  }),
-};
-
-export default styles;
+      &.is--loaded {
+        opacity: 1;
+      }
+    }
+    
+    &__indicator-wrapper,
+    &__error-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      pointer-events: none;
+    }
+  }
+  
+  &.${ MODIFIER__LOADED } {
+    
+    .${ ROOT_CLASS } {
+      
+      &__image {
+        opacity: 1;
+      }
+    }
+  }
+`;
